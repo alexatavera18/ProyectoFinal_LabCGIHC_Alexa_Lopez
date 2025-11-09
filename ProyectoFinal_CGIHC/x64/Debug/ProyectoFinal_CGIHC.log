@@ -1,12 +1,4 @@
-﻿  Galeria.cpp
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Mesh.h(95,50): warning C4267: 'argumento': conversión de 'size_t' a 'GLsizei'; posible pérdida de datos
-  (compilando archivo de origen "Galeria.cpp")
-  
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(138,30): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(161,49): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(162,49): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(163,43): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-Galeria.obj : error LNK2019: símbolo externo __imp_glewInit sin resolver al que se hace referencia en la función main
+﻿Galeria.obj : error LNK2019: símbolo externo __imp_glewInit sin resolver al que se hace referencia en la función main
 Galeria.obj : error LNK2019: símbolo externo glfwInit sin resolver al que se hace referencia en la función main
 Galeria.obj : error LNK2019: símbolo externo glfwTerminate sin resolver al que se hace referencia en la función main
 Galeria.obj : error LNK2019: símbolo externo glfwCreateWindow sin resolver al que se hace referencia en la función main
@@ -54,8 +46,8 @@ Galeria.obj : error LNK2019: símbolo externo __imp___glewGenerateMipmap sin res
 Galeria.obj : error LNK2019: símbolo externo __imp___glewBindVertexArray sin resolver al que se hace referencia en la función "public: void __cdecl Mesh::Draw(class Shader)" (?Draw@Mesh@@QEAAXVShader@@@Z)
 Galeria.obj : error LNK2019: símbolo externo __imp___glewGenVertexArrays sin resolver al que se hace referencia en la función "private: void __cdecl Mesh::setupMesh(void)" (?setupMesh@Mesh@@AEAAXXZ)
 Galeria.obj : error LNK2019: símbolo externo __imp_glewExperimental sin resolver al que se hace referencia en la función main
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\\External Libraries\GLEW\lib\Release\Win32\glew32.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\\External Libraries\GLFW\lib-vc2015\glfw3.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\\External Libraries\assimp\lib\assimp-vc140-mt.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\\External Libraries\SOIL2\lib\soil2-debug.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
-C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\x64\Debug\ProyectoFinal_CGIHC.exe : fatal error LNK1120: 48 externos sin resolver
+D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\\External Libraries\GLEW\lib\Release\Win32\glew32.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
+D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\\External Libraries\GLFW\lib-vc2015\glfw3.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
+D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\\External Libraries\assimp\lib\assimp-vc140-mt.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
+D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\\External Libraries\SOIL2\lib\soil2-debug.lib : warning LNK4272: el tipo de máquina de biblioteca 'x86' está en conflicto con el tipo de máquina de destino 'x64'
+D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\x64\Debug\ProyectoFinal_CGIHC.exe : fatal error LNK1120: 48 externos sin resolver

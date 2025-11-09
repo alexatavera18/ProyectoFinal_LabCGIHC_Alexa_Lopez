@@ -1,5 +1,5 @@
-//Nombre: Alexa Fernanda L�pez Tavera
-//Proyecto Final CGIHC "Galer�a de arte interactiva con OpenGL"
+﻿//Nombre: Alexa Fernanda López Tavera
+//Proyecto Final CGIHC "Galería de arte interactiva con OpenGL"
 //Fecha de Entrega: 10 de Noviembre, 2025
 //No. de cuenta: 319023024
 
@@ -7,7 +7,9 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -21,24 +23,54 @@
 #include "Camera.h"
 #include "Model.h"
 
+
+
+
+
 // Prototipos
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 void Animation() {} // <-- sin animaciones por ahora
+void animacion(); //Funci�n para los frames 
+void updateAnim(float deltaTime);
 
 // Window
 const GLuint WIDTH = 800, HEIGHT = 600;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
-// C�mara
+// Cámara
 Camera  camera(glm::vec3(0.0f, 1.2f, 4.5f));
 GLfloat lastX = WIDTH / 2.0f;
 GLfloat lastY = HEIGHT / 2.0f;
 bool keys[1024];
 bool firstMouse = true;
+bool pajarosanim = false;
+float tPajaro = 0.0f;
+// Factores pre-calculados
+const float startFactor = 1.0f;   // -45°
+const float factor3Turns = 25.0f;  // 3 vueltas y vuelve a -45°
+const float factor3TurnsPlus180 = 29.0f;  // 3 vueltas + 180°
 
-// Luces (se quedan como en tu c�digo)
+enum AnimState {
+    PHASE1_SUBIR_ESCALAR_GIRAR_RAPIDO,
+    PHASE2_GIRO_90_LENTO,
+    PHASE3_GIRO_90_REGRESO_MAS_RAPIDO,
+    PHASE4_BAJAR_Y_ENCOGER_RAPIDO,
+    ANIM_FINISHED
+};
+
+AnimState animState = PHASE1_SUBIR_ESCALAR_GIRAR_RAPIDO;
+float animTime = 0.0f;
+
+// Ajusta estos valores a ojo hasta que te guste
+const float baseAlturaTarget = 4.0f;   // cuánto sube la base
+const float dur1 = 0.5f;               // fase 1 rápida
+const float dur2 = 3.0f;               // fase 2 lenta
+const float dur3 = dur2 / 3.0f;        // fase 3 = el doble de velocidad que fase 2
+const float dur4 = dur1 / 1.5f;        // fase 4 = 1.5 veces más rápida que fase 1
+
+// Luces (se quedan como en tu código)
 glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 bool active;
 glm::vec3 pointLightPositions[] = {
@@ -49,7 +81,7 @@ glm::vec3 pointLightPositions[] = {
 };
 glm::vec3 Light1 = glm::vec3(0);
 
-// Cubito para visualizar la l�mpara
+// Cubito para visualizar la lámpara
 float vertices[] = {
     -0.5f,-0.5f,-0.5f,  0.0f,0.0f,-1.0f,  0.5f,-0.5f,-0.5f,  0.0f,0.0f,-1.0f,
      0.5f, 0.5f,-0.5f,  0.0f,0.0f,-1.0f,  0.5f, 0.5f,-0.5f,  0.0f,0.0f,-1.0f,
@@ -79,8 +111,30 @@ float vertices[] = {
 // Tiempos
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+glm::vec3 P1PAj(0, 0, 0);
+glm::vec3 P2PAj(0, 0, 0);
+glm::vec3 P3PAj(0, 0, 0);
+glm::vec3 P4PAj(0, 0, 0);
+float rotarCuerpo1 =1;
+float rotaralas =0.0;
+
+float SubirBase = 0.0;
+
+float girarCandiles = 1.0;
+
+float escalarCandiles = 0.0;
+
+glm::vec3 P1Base = P1PAj;
+glm::vec3 P2Base = P2PAj;
+glm::vec3 P3Base = P3PAj;
+glm::vec3 P4Base = P4PAj;
 
 
+float M_PI = 3.1416;
+
+bool mvPajaro=false;
+bool ALASPAJ = false;
+bool ALASMV = false;
 int main() {
     // Init GLFW
     glfwInit();
@@ -130,10 +184,10 @@ int main() {
     Model CuadroCirculo2((char*)"CuadrosCirculo1/CuadroCirculo1.obj");
     Model CuadroCirculo3((char*)"CuadrosCirculo2/CuadroCirculo2.obj");
     Model CuadroCirculo4((char*)"CuadrosCirculo3/CuadroCirculo3.obj");
+    Model cortinillas((char*)"Cortina/Cortinillas.obj"); 
+    Model base((char*)"Cortina/Base.obj");
 
-
-
-
+   
     // ====== VAO/VBO para el cubito de la luz ======
     GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -156,10 +210,11 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame; lastFrame = currentFrame;
-
+        animacion();
         glfwPollEvents();
         DoMovement();
         Animation();
+       updateAnim(deltaTime);
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -170,7 +225,7 @@ int main() {
         GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
         glUniform3f(viewPosLoc, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 
-        // Luz direccional (igual que tu c�digo)
+        // Luz direccional (igual que tu código)
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.direction"), -0.2f, -1.0f, -0.3f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.ambient"), 0.6f, 0.6f, 0.6f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.diffuse"), 0.6f, 0.6f, 0.6f);
@@ -190,7 +245,7 @@ int main() {
         glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].linear"), 0.045f);
         glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].quadratic"), 0.075f);
 
-        // Spotlight en c�mara (igual que tu c�digo)
+        // Spotlight en cámara (igual que tu código)
         glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.position"), camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.direction"), camera.GetFront().x, camera.GetFront().y, camera.GetFront().z);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.ambient"), 0.2f, 0.2f, 0.8f);
@@ -216,11 +271,29 @@ int main() {
         glm::mat4 model(1.0f);
         glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
 
-        // Sala / Galer�a (paredes, piso)
+        // Sala / Galería (paredes, piso)
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Galeria.Draw(lightingShader);
+
+
+        //Cortinillas
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(50.0f, 6.0f , -15.0f));
+        model = glm::scale(model, glm::vec3(4.0f + 1.5*escalarCandiles,4.0f,4.0f+ escalarCandiles));
+        model = glm::rotate(model, glm::radians(-45.0f * girarCandiles), glm::vec3(0, 1, 0));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cortinillas.Draw(lightingShader);
+
+        //BaseCortinillas
+        model = glm::mat4(1.0f);
+
+        model = glm::translate(model, glm::vec3(50.0f, 6.0f + SubirBase, -15.0f));
+        model = glm::scale(model, glm::vec3(4.0f));
+        model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0, 1, 0));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
 
         // Banca de piedra (derecha/frontal)
         model = glm::mat4(1.0f);
@@ -255,7 +328,7 @@ int main() {
 
         glm::mat4 Mplanta = model;
 
-        // �rbol
+        // Árbol
         glm::mat4 Marbol = Mplanta;
         Marbol = glm::translate(Marbol, glm::vec3(-0.5f, -0.5f, 0.5f));
         Marbol = glm::scale(Marbol, glm::vec3(2.0f));
@@ -279,10 +352,10 @@ int main() {
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         CuadroRayas.Draw(lightingShader);
 
-        // P�jaro 1
+        // Pájaro 1
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 3.0f, -42.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        model = glm::translate(model, glm::vec3(10.0f+ P1PAj.x, 3.0f+ P1PAj.y, -42.0f+P1PAj.z));
+        model = glm::rotate(model, glm::radians(-90.0f*rotarCuerpo1), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.70f));
 
         // cuerpo
@@ -294,19 +367,21 @@ int main() {
         glm::mat4 M1_izq = M1;
         M1_izq = glm::translate(M1_izq, ALA_IZQ_PIVOT);
         M1_izq = glm::translate(M1_izq, -ALA_IZQ_PIVOT);
+        M1_izq = glm::rotate(M1_izq, glm::radians(-90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M1_izq));
         PajaroAlaIzq.Draw(lightingShader);
 
         glm::mat4 M1_der = M1;
         M1_der = glm::translate(M1_der, ALA_DER_PIVOT);
         M1_der = glm::translate(M1_der, -ALA_DER_PIVOT);
+        M1_der = glm::rotate(M1_der, glm::radians(90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M1_der));
         PajaroAlaDer.Draw(lightingShader);
 
-        // P�jaro 2
+        // Pájaro 2
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 1.2f, -41.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        model = glm::translate(model, glm::vec3(10.0f+ P2PAj.x, 1.2f+ P2PAj.y, -41.0f+P2PAj.z));
+        model = glm::rotate(model, glm::radians(-90.0f*rotarCuerpo1), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.70f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Pajaro.Draw(lightingShader);
@@ -316,19 +391,21 @@ int main() {
         glm::mat4 M2_izq = M2;
         M2_izq = glm::translate(M2_izq, ALA_IZQ_PIVOT);
         M2_izq = glm::translate(M2_izq, -ALA_IZQ_PIVOT);
+        M2_izq = glm::rotate(M2_izq, glm::radians(-90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M2_izq));
         PajaroAlaIzq.Draw(lightingShader);
 
         glm::mat4 M2_der = M2;
         M2_der = glm::translate(M2_der, ALA_DER_PIVOT);
         M2_der = glm::translate(M2_der, -ALA_DER_PIVOT);
+        M2_der = glm::rotate(M2_der, glm::radians(90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M2_der));
         PajaroAlaDer.Draw(lightingShader);
 
-        // P�jaro 3
+        // Pájaro 3
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 2.5f, -44.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        model = glm::translate(model, glm::vec3(10.0f+ P3PAj.x, 2.5f+ P3PAj.y, -44.0f+ P3PAj.z));
+        model = glm::rotate(model, glm::radians(-90.0f* rotarCuerpo1), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.70f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Pajaro.Draw(lightingShader);
@@ -338,19 +415,22 @@ int main() {
         glm::mat4 M3_izq = M3;
         M3_izq = glm::translate(M3_izq, ALA_IZQ_PIVOT);
         M3_izq = glm::translate(M3_izq, -ALA_IZQ_PIVOT);
+
+        M3_izq = glm::rotate(M3_izq, glm::radians(-90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M3_izq));
         PajaroAlaIzq.Draw(lightingShader);
 
         glm::mat4 M3_der = M3;
         M3_der = glm::translate(M3_der, ALA_DER_PIVOT);
         M3_der = glm::translate(M3_der, -ALA_DER_PIVOT);
+        M3_der = glm::rotate(M3_der, glm::radians(90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M3_der));
         PajaroAlaDer.Draw(lightingShader);
 
-        // P�jaro 4
+        // Pájaro 4
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 1.60f, -46.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        model = glm::translate(model, glm::vec3(10.0f + P4PAj.x, 1.60f+ P4PAj.y, -46.0f+ P4PAj.z));
+        model = glm::rotate(model, glm::radians(-90.0f* rotarCuerpo1), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.70f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Pajaro.Draw(lightingShader);
@@ -360,12 +440,16 @@ int main() {
         glm::mat4 M4_izq = M4;
         M4_izq = glm::translate(M4_izq, ALA_IZQ_PIVOT);
         M4_izq = glm::translate(M4_izq, -ALA_IZQ_PIVOT);
+
+        M4_izq = glm::rotate(M4_izq, glm::radians(-90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M4_izq));
         PajaroAlaIzq.Draw(lightingShader);
 
         glm::mat4 M4_der = M4;
         M4_der = glm::translate(M4_der, ALA_DER_PIVOT);
         M4_der = glm::translate(M4_der, -ALA_DER_PIVOT);
+
+        M4_der = glm::rotate(M4_der , glm::radians(90 * rotaralas), glm::vec3(1, 0, 0));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(M4_der));
         PajaroAlaDer.Draw(lightingShader);
 
@@ -515,6 +599,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         active = !active;
         if (active) Light1 = glm::vec3(0.2f, 0.8f, 1.0f);
         else        Light1 = glm::vec3(0.0f);
+    
+    }
+    if (keys[GLFW_KEY_L]) {
+        PlaySound(TEXT("sonidos/volar.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP);
+
+        if (!pajarosanim) {
+            pajarosanim = true;
+            mvPajaro = true;
+           
+        }
+    }
+
+    
+    if (keys[GLFW_KEY_K]) {
+
+        if (!ALASPAJ) {
+            PlaySound(TEXT("sonidos/candiles.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP);
+            ALASPAJ = true;
+        }
     }
 }
 
@@ -525,3 +628,174 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos) {
     lastX = (float)xPos; lastY = (float)yPos;
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
+
+void animacion() {
+
+    if (pajarosanim) {
+        // Velocidad (ajusta a gusto)
+        tPajaro += 0.005f;
+
+        if (tPajaro >= 1.0f) {
+            tPajaro = 1.0f;
+            pajarosanim = false;  // terminó el ciclo, ya regresó
+        }
+
+        float angle = tPajaro * 2.0f * M_PI;
+        float theta = tPajaro * 2.0f * M_PI;
+        // --- Pájaro 1 (más ovalado)
+        float rX1 = -12.0f;   // más ancho
+        float rZ1 = 2.0f;   // menos profundo
+        float offsetX1 = rX1 * cos(angle) - rX1;
+        float offsetZ1 = rZ1 * sin(angle);
+        float offsetY1 = 0.5f * sin(theta);
+        P1PAj = P1Base + glm::vec3(offsetX1, offsetY1, offsetZ1);
+
+
+        float rX2 = -8.0f;  // horizontal
+        float rZ2 = 3.0f;  // profundidad
+        float offsetX2 = rX2 * cos(angle) - rX2;
+        float offsetZ2 = rZ2 * sin(angle);
+        float offsetY2 = 0.3f * sin(theta);
+        glm::vec3 offset2(offsetX2, offsetY2, offsetZ2);
+
+        P2PAj = P2Base + offset2;
+
+
+        float rX = -8.0f;  // horizontal
+        float rZ = 0.5f;  // profundidad
+        float offsetX = rX * cos(angle) - rX;
+        float offsetZ = rZ * sin(angle);
+        float offsetY = 2.3f * sin(angle); 
+        glm::vec3 offset(offsetX, offsetY, offsetZ);
+
+        P3PAj = P3Base + offset;
+
+        float rX3 = -2.0f;  // horizontal
+        float rZ3 = 0.5f;  // profundidad
+        float offsetX3 = rX3 * cos(angle) - rX3;
+        float offsetZ3 = rZ3 * sin(angle);
+        float offsetY3 = 2.0f * sin(theta);
+        glm::vec3 offset3(offsetX3, offsetY3, offsetZ3);
+
+        P4PAj = P4Base + offset3;
+
+        // Rotación según dirección del movimiento (tangente a la curva)
+        // Derivadas:
+        // dx/da = -rX*sin(angle)
+        // dz/da =  rZ*cos(angle)
+        float dirX = -rX * sin(angle);
+        float dirZ = rZ * cos(angle);
+
+        // Ángulo en grados (ajusta eje según tu modelo)
+        rotarCuerpo1 -= 0.02;
+        if (ALASMV) {
+            if (rotaralas <= 1) {
+                rotaralas += 0.1;
+            }
+            else {
+                ALASMV = false;
+            }
+        }
+        else {
+            if (rotaralas > 0) {
+
+                rotaralas -= 0.1;
+            }
+            else {
+                ALASMV = true;
+            }
+
+        }
+    }
+    else {
+        tPajaro = 0.0f;
+        P1PAj = P1Base;
+        P2PAj = P2Base;
+        P3PAj = P3Base;
+        P4PAj = P4Base;
+        rotaralas = 0;
+        rotarCuerpo1 = 1.0;
+       
+    }
+    
+    if (true) {
+        
+    }
+    
+}
+
+void updateAnim(float deltaTime) {
+    if (!ALASPAJ) return;
+
+    animTime += deltaTime;
+
+    switch (animState) {
+
+    case PHASE1_SUBIR_ESCALAR_GIRAR_RAPIDO: {
+        float t = glm::clamp(animTime / dur1, 0.0f, 1.0f);
+        SubirBase = glm::mix(0.0f, baseAlturaTarget, t);
+        escalarCandiles = glm::mix(0.0f, 4.0f, t);                 // 4 -> 8
+        girarCandiles = glm::mix(startFactor, factor3Turns, t);  // 1 -> 25 (3 vueltas)
+
+        if (animTime >= dur1) {
+            animState = PHASE2_GIRO_90_LENTO;   // ahora será el giro de 180°
+            animTime = 0.0f;
+        }
+        break;
+    }
+
+                                          // 2) Ya grande, gira 180° (lento) manteniendo escala
+    case PHASE2_GIRO_90_LENTO: {
+        float t = glm::clamp(animTime / dur2, 0.0f, 1.0f);
+
+        SubirBase = baseAlturaTarget;
+        escalarCandiles = 4.0f; // sigue al doble
+        // 3 vueltas terminadas (25) -> +180° (29)
+        girarCandiles = glm::mix(factor3Turns, factor3TurnsPlus180, t);
+
+        if (animTime >= dur2) {
+            animState = PHASE3_GIRO_90_REGRESO_MAS_RAPIDO;
+            animTime = 0.0f;
+        }
+        break;
+    }
+
+                             // 3) Regresa esos 180° más rápido (si quieres que vuelva a la orientación anterior)
+    case PHASE3_GIRO_90_REGRESO_MAS_RAPIDO: {
+        float t = glm::clamp(animTime / dur3, 0.0f, 1.0f);
+
+        SubirBase = baseAlturaTarget;
+        escalarCandiles = 4.0f;
+        // de 29 -> 25 (quita los 180° extra)
+        girarCandiles = glm::mix(factor3TurnsPlus180, factor3Turns, t);
+
+        if (animTime >= dur3) {
+            animState = PHASE4_BAJAR_Y_ENCOGER_RAPIDO;
+            animTime = 0.0f;
+        }
+        break;
+    }
+
+                                          // 4) Baja base + vuelve a tamaño original + vuelve al factor inicial
+    case PHASE4_BAJAR_Y_ENCOGER_RAPIDO: {
+        float t = glm::clamp(animTime / dur4, 0.0f, 1.0f);
+
+        SubirBase = glm::mix(baseAlturaTarget, 0.0f, t);
+        escalarCandiles = glm::mix(4.0f, 0.0f, t);                // 8 -> 4
+        girarCandiles = glm::mix(factor3Turns, startFactor, t); // vuelve a -45°
+
+        if (animTime >= dur4) {
+            animState = PHASE1_SUBIR_ESCALAR_GIRAR_RAPIDO;
+            ALASPAJ = false;   // listo para reactivar
+            animTime = 0.0f;
+            PlaySound(NULL, 0, 0);
+        }
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
+
