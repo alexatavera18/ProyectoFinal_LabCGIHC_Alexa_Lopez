@@ -1,0 +1,13 @@
+# Blender 4.5.3 LTS MTL File: 'reflectores.blend'
+# www.blender.org
+
+newmtl ASSET_MAT_MR
+Ka 0.227273 0.227273 0.227273
+Ks 0.900000 0.900000 0.900000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd Poliigon_MetalSteelBrushed_7174_BaseColor.jpg
+map_Ns Poliigon_MetalSteelBrushed_7174_Roughness.jpg
+map_refl Poliigon_MetalSteelBrushed_7174_Metallic.jpg

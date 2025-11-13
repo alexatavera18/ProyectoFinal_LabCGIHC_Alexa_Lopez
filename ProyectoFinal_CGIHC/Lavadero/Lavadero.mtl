@@ -1,4 +1,4 @@
-# Blender 4.5.3 LTS MTL File: 'None'
+# Blender 4.5.3 LTS MTL File: 'Lavadero.blend'
 # www.blender.org
 
 newmtl Madera.001
@@ -11,7 +11,7 @@ d 1.000000
 illum 2
 map_Kd madera.png
 
-newmtl Piedra.001
+newmtl Piedra
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000

@@ -1,0 +1,16 @@
+# exported by https://3dviewer.net
+newmtl Material
+Kd 0 0 0
+d 1
+Ka 0 0 0
+Ks 0 0 0
+Ns 0
+map_Kd Binary_3.png
+map_Ks Binary_4.png
+newmtl Material
+Kd 0 0 0
+d 1
+Ka 0 0 0
+Ks 0 0 0
+Ns 0
+map_Kd Binary_0.png

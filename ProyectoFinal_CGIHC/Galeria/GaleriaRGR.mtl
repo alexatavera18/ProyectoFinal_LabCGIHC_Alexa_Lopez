@@ -1,4 +1,4 @@
-# Blender 4.5.3 LTS MTL File: 'Casa.blend'
+# Blender 4.5.3 LTS MTL File: 'CasaCop.blend'
 # www.blender.org
 
 newmtl ColorBlanco
@@ -20,16 +20,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-
-newmtl Iridescente
-Ns 548.946289
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.604545 0.604545 0.604545
-Ke 0.000000 0.000000 0.000000
-Ni 1.400000
-d 0.595455
-illum 9
 
 newmtl Iridescente.001
 Ns 548.946289
@@ -82,16 +72,6 @@ map_Kd Poliigon_MetalPaintedMatte_7037_BaseColor.jpg
 map_Ns Poliigon_MetalPaintedMatte_7037_Roughness.jpg
 map_refl Poliigon_MetalPaintedMatte_7037_Metallic.jpg
 
-newmtl Vidrio
-Ns 919.855469
-Ka 0.095455 0.095455 0.095455
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-illum 6
-map_Kd Vidrio.png
-map_d Vidrio.png
-
 newmtl cemento
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -110,4 +90,4 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.400000
 d 1.000000
-illum 2
+map_Kd vidrio.png

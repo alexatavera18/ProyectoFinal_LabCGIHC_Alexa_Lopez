@@ -1,10 +1,5 @@
 ﻿  Galeria.cpp
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(133,12): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(211,30): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(235,49): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(236,49): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(237,43): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(690,25): warning C4305: '-=': truncamiento de 'double' a 'float'
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(693,30): warning C4305: '+=': truncamiento de 'double' a 'float'
-D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\ProyectoFinal_CGIHC\Galeria.cpp(702,30): warning C4305: '-=': truncamiento de 'double' a 'float'
-  ProyectoFinal_CGIHC.vcxproj -> D:\9NO\Realidad Virtual\github\ProyectoFinal_LabCGIHC_Alexa_Lopez\Debug\ProyectoFinal_CGIHC.exe
+C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(693,66): warning C4566: el carácter representado por el nombre de carácter universal '\u2192' no se puede representar en la página de códigos actual (1252)
+C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(710,28): warning C4566: el carácter representado por el nombre de carácter universal '\u2192' no se puede representar en la página de códigos actual (1252)
+C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\ProyectoFinal_CGIHC\Galeria.cpp(773,16): warning C4566: el carácter representado por el nombre de carácter universal '\u2192' no se puede representar en la página de códigos actual (1252)
+  ProyectoFinal_CGIHC.vcxproj -> C:\Users\alexa\OneDrive\Escritorio\ProyectoFinal_CGIHC\Debug\ProyectoFinal_CGIHC.exe
